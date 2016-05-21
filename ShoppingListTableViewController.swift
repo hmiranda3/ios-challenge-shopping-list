@@ -31,12 +31,13 @@ class ShoppingListTableViewController: UITableViewController, ButtonTableViewCel
     
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("itemCell", forIndexPath: indexPath)
+        let cell = tableView.dequeueReusableCellWithIdentifier("itemCell", forIndexPath: indexPath) as? ItemTableViewCell
         
         let item = ShoppingListController.sharedController.items[indexPath.row]
-        cell.textLabel?.text = item.name
+        cell?.updateWithItem(item)
+        cell?.delegate = self
         
-        return cell
+        return cell ?? UITableViewCell()
     }
     
     
@@ -62,6 +63,7 @@ class ShoppingListTableViewController: UITableViewController, ButtonTableViewCel
             ShoppingListController.sharedController.addItem(shoppingListItem)
             self.tableView.reloadData()
         }
+        
         let cancelAction = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
         alertController.addAction(createAction)
         alertController.addAction(cancelAction)
@@ -71,7 +73,15 @@ class ShoppingListTableViewController: UITableViewController, ButtonTableViewCel
     func buttonCellButtonTapped(sender: ItemTableViewCell) {
         guard let indexPath = tableView.indexPathForCell(sender) else { return }
         let item = ShoppingListController.sharedController.items[indexPath.row]
-        ShoppingListController.sharedController.isCompleteValueChanged(item)
+        
+        if item.isComplete == false {
+            item.isComplete = true
+            sender.updateButton(item.isComplete.boolValue)
+        } else {
+            item.isComplete = false
+            sender.updateButton(item.isComplete.boolValue)
+        }
+        
     }
     
 }
